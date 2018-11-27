@@ -27,6 +27,7 @@ print(nxtrain.shape)
 
 # Model Define
 import keras
+from keras.models import Sequential
 from keras.layers import Input, Dense, Activation, Dropout,Activation
 from keras.optimizers import Adam, Nadam, RMSprop, Adadelta
 from keras import regularizers
@@ -36,31 +37,34 @@ from keras.models import Model
 def LeakyReLU(alpha):
     return Activation('sigmoid')
 
-# First Dense Layout
-inputs = Input(shape=(178,))
-Encoder = Dense(128)(inputs)
-Encoder = LeakyReLU(alpha=0.1)(Encoder)
-Encoder = Dropout(0.8)(Encoder)
 
-# AutoEncoder
+TModel = Sequential()
+# 179 to 128
+TModel.add(Dense(128, input_dim=178))
+TModel.add(Activation('sigmoid'))
+TModel.add(Dropout(0.8))
 
-Encoder = Dense(64, activity_regularizer = regularizers.l1(10e-5), name='embed', activation='sigmoid')(Encoder)
-Encoder = Dropout(0.8)(Encoder)
+# 128 to 64
+TModel.add(Dense(64, activity_regularizer = regularizers.l1(10e-5), name='embed', activation='sigmoid'))
+TModel.add(Dropout(0.8))
 
-Decoder = Dense(128)(Encoder)
-Decoder = LeakyReLU(alpha=0.1)(Decoder)
-Decoder = Dropout(0.8)(Decoder)
+# 64 to 128
+TModel.add(Dense(128))
+TModel.add(Activation('sigmoid'))
+TModel.add(Dropout(0.8))
 
-Decoder = Dense(178)(Decoder)
-Decoder = LeakyReLU(alpha=0.1)(Decoder)
+# 128 to 178
+TModel.add(Dense(178))
+TModel.add(Activation('sigmoid'))
 
-opt = Adam(lr=0.005, decay=1e-2)
-ae = Model(input = inputs, output = Decoder)
-ae.compile(optimizer=opt, loss='mean_squared_error')
-ae.fit(nxtrain,nxtrain,nb_epoch= 100, batch_size = 2, shuffle=True)
+TModel.compile(optimizer=Adam(lr=0.005, decay=1e-2), loss='mean_squared_error')
+TModel.fit(nxtrain, nxtrain, nb_epoch=100, batch_size=2, shuffle=True)
 
-mm = Model(input= ae.input,output=ae.get_layer('embed').output)
+mm = Model(input= TModel.input,output=TModel.get_layer('embed').output)
 X = mm.predict(nxtrain)
+
+
+
 print("X's shape: ", X.shape)
 
 from sklearn.cluster import KMeans
@@ -78,6 +82,8 @@ def randindex(labels1,labels2):
             fn += 1 if labels1[point1] == labels1[point2] and labels2[point1] != labels2[point2] else 0
     return (tp+tn) /(tp+tn+fp+fn)
 
+# kmeans_sae is : 0.542860749905315
+# kmeans_raw is : 0.720237343769726
 print(kmeans_sae.labels_)
 print('kmeans_sae is :', randindex(kmeans_sae.labels_, labels))
 print('kmeans_raw is :', randindex(kmeans_raw.labels_, labels))
