@@ -33,7 +33,6 @@ embed (Dense)                (None, 64)                8256
 
 ## 运行截图
 
-# 0.8661153894710264
 ![image.png](https://upload-images.jianshu.io/upload_images/5786775-315782b2bc5dfc66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
