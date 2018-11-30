@@ -119,8 +119,6 @@ print("X's shape: ", X.shape)
 
 from sklearn.cluster import KMeans
 kmeans_sae = KMeans(n_clusters=3, init='random', random_state=None,max_iter=500).fit(X)
-kmeans_raw = KMeans(n_clusters=3, init='random', random_state=None,max_iter=500).fit(x)
-
 
 def randindex(labels1,labels2):
     tp,tn,fp,fn = 0.0,0.0,0.0,0.0
@@ -132,12 +130,8 @@ def randindex(labels1,labels2):
             fn += 1 if labels1[point1] == labels1[point2] and labels2[point1] != labels2[point2] else 0
     return (tp+tn) /(tp+tn+fp+fn)
 
-# kmeans_sae is : 0.542860749905315
-# kmeans_raw is : 0.720237343769726
 print(kmeans_sae.labels_)
-# print(kmeans_raw.labels_)
 print('kmeans_sae is :', randindex(kmeans_sae.labels_, labels))
-# print('kmeans_raw is :', randindex(kmeans_raw.labels_, labels))
 
 
 
